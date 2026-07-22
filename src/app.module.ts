@@ -4,12 +4,13 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TaskModule } from './task/task.module';
 
 /**
- * Root module of the application.
- * Configures the GraphQL module using the Code First approach with Apollo Driver.
- * The schema is auto-generated from TypeScript decorators and saved to `schema.gql`.
- * Apollo Server v5 provides Apollo Explorer as the default dev UI at /graphql.
+ * Módulo raíz de la aplicación.
+ * Configura el módulo de GraphQL usando el enfoque Code First con el driver de Apollo.
+ * El esquema se genera automáticamente a partir de los decoradores de TypeScript y se guarda en `schema.gql`.
+ * Apollo Server v5 provee Apollo Explorer como interfaz de desarrollo en la ruta /graphql.
  */
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AppService } from './app.service';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
     }),
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
