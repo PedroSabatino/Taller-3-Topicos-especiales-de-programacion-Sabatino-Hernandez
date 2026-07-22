@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# GraphQL auto-generated schema
+src/schema.gql
+
 # Logs
 logs
 *.log
