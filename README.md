@@ -1,98 +1,292 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Sistema de Gestión de Tareas — Taller #3
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> **Tópicos Especiales de Programación**  
+> Temas evaluados: Programación Orientada a Aspectos (AOP), GitFlow y Clean Code
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Sistema de gestión de tareas para proyectos de desarrollo de software, implementado como un servidor **NestJS** que expone una **API GraphQL** con operaciones CRUD completas.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tecnologías Utilizadas
 
-## Project setup
+| Tecnología | Versión | Propósito |
+|---|---|---|
+| [NestJS](https://nestjs.com/) | ^11.0 | Framework principal del servidor |
+| [Apollo Server](https://www.apollographql.com/) | ^5.0 | Motor del servidor GraphQL |
+| [`@nestjs/graphql`](https://docs.nestjs.com/graphql/quick-start) | ^13.0 | Integración GraphQL (Code First) |
+| [UUID](https://github.com/uuidjs/uuid) | ^11.0 | Generación de identificadores únicos |
+| [TypeScript](https://www.typescriptlang.org/) | ^5.7 | Lenguaje de programación |
+
+---
+
+## Instalación
 
 ```bash
-$ npm install
+# Clonar el repositorio
+git clone https://github.com/PedroSabatino/Taller-3-Topicos-especiales-de-programacion-Sabatino-Hernandez.git
+
+# Instalar dependencias
+npm install
 ```
 
-## Compile and run the project
+---
+
+## Ejecución del Servidor
 
 ```bash
-# development
-$ npm run start
+# Modo desarrollo (con recarga automática)
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
+# Modo producción
+npm run start:prod
 
-# production mode
-$ npm run start:prod
+# Modo normal
+npm run start
 ```
 
-## Run tests
+Una vez iniciado, el servidor estará disponible en:
+
+- **API GraphQL:** `http://localhost:3000/graphql`
+- **Apollo Explorer (interfaz interactiva):** `http://localhost:3000/graphql`
+
+---
+
+## Arquitectura del Taller
+
+```
+src/
+├── app.module.ts              # Módulo raíz — configura GraphQL y registra el interceptor (AOP)
+├── main.ts                    # Bootstrap de la aplicación
+├── logger/
+│   ├── logger.interceptor.ts  # Interceptor de AOP — logging transversal de operaciones
+│   └── logger.interceptor.spec.ts
+└── task/
+    ├── dto/
+    │   ├── create-task.input.ts   # Tipo de entrada para crear tareas
+    │   └── update-task.input.ts   # Tipo de entrada para actualizar tareas
+    ├── entities/
+    │   └── task.entity.ts         # Entidad Task (ObjectType de GraphQL)
+    ├── enums/
+    │   └── task-status.enum.ts    # Enum de estados de la tarea
+    ├── task.module.ts
+    ├── task.resolver.ts           # Resolver GraphQL (queries y mutations)
+    └── task.service.ts            # Servicio con lógica de negocio (almacenamiento en memoria)
+```
+
+---
+
+## Modelo de Datos — Entidad `Task`
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | `ID` (UUID) | Identificador único auto-generado |
+| `title` | `String` | Título corto y descriptivo de la tarea |
+| `description` | `String` | Descripción detallada de la tarea |
+| `status` | `TaskStatus` | Estado actual en el flujo de trabajo |
+| `tags` | `[String]` | Arreglo dinámico de etiquetas |
+| `createdAt` | `String` | Fecha de creación en formato ISO 8601 |
+| `assignedUser` | `String` | Usuario responsable de la tarea |
+| `project` | `String` | Proyecto al que pertenece la tarea |
+
+### Estados disponibles (`TaskStatus`)
+
+| Valor | Descripción |
+|---|---|
+| `BACKLOG` | La tarea está en el backlog, aún no planificada |
+| `TODO` | La tarea está planificada y lista para trabajarse |
+| `IN_PROGRESS` | La tarea está siendo trabajada actualmente |
+| `DONE` | La tarea ha sido completada |
+
+---
+
+## API GraphQL — Operaciones Disponibles
+
+### Queries (Consultas)
+
+#### Obtener todas las tareas
+```graphql
+query {
+  tasks {
+    id
+    title
+    description
+    status
+    tags
+    createdAt
+    assignedUser
+    project
+  }
+}
+```
+
+#### Obtener una tarea por ID
+```graphql
+query {
+  task(id: "uuid-de-la-tarea") {
+    id
+    title
+    status
+    assignedUser
+  }
+}
+```
+
+### Mutations (Mutaciones)
+
+#### Crear una nueva tarea
+```graphql
+mutation {
+  createTask(createTaskInput: {
+    title: "Implementar autenticación"
+    description: "Agregar JWT al servidor NestJS"
+    status: IN_PROGRESS
+    tags: ["backend", "seguridad"]
+    assignedUser: "pedro.sabatino"
+    project: "Taller #3"
+  }) {
+    id
+    title
+    status
+    createdAt
+  }
+}
+```
+
+#### Actualizar una tarea (campos opcionales)
+```graphql
+mutation {
+  updateTask(updateTaskInput: {
+    id: "uuid-de-la-tarea"
+    status: DONE
+    tags: ["backend", "seguridad", "completado"]
+    assignedUser: "nuevo.usuario"
+  }) {
+    id
+    title
+    status
+    tags
+    assignedUser
+  }
+}
+```
+
+#### Eliminar una tarea
+```graphql
+mutation {
+  removeTask(id: "uuid-de-la-tarea") {
+    id
+    title
+  }
+}
+```
+
+---
+
+## Programación Orientada a Aspectos (AOP)
+
+La AOP se implementa mediante el `LoggerInterceptor` ubicado en `src/logger/logger.interceptor.ts`.
+
+### ¿Cómo funciona?
+
+El interceptor actúa como un **aspecto transversal** que envuelve automáticamente cada operación GraphQL sin modificar la lógica de negocio de los servicios ni resolvers.
+
+```
+Petición GraphQL
+      │
+      ▼
+┌─────────────────────────┐
+│   LoggerInterceptor     │ ← Aspecto (AOP)
+│   [INICIO] registrado   │
+│         │               │
+│         ▼               │
+│   TaskResolver          │ ← Lógica de negocio (no sabe del log)
+│   TaskService           │
+│         │               │
+│   [FIN/ERROR] registrado│
+└─────────────────────────┘
+      │
+      ▼
+ Respuesta GraphQL
+```
+
+### Ejemplo de logs en consola
+
+```
+[LoggerInterceptor] [INICIO] Mutation.createTask
+[LoggerInterceptor] [FIN] Mutation.createTask — completado en 2ms
+
+[LoggerInterceptor] [INICIO] Query.tasks
+[LoggerInterceptor] [FIN] Query.tasks — completado en 1ms
+
+[LoggerInterceptor] [INICIO] Query.task
+[LoggerInterceptor] [ERROR] Query.task — falló en 1ms | No se encontró una tarea con el ID "xyz".
+```
+
+El interceptor se registra de forma **global** en el `AppModule` mediante el token `APP_INTERCEPTOR`, lo que lo aplica a todos los resolvers sin necesidad de decorar cada uno individualmente.
+
+---
+
+## Flujo de Trabajo — GitFlow
+
+Este proyecto sigue la metodología **GitFlow**:
+
+```
+main          ●─────────────────────────────────────● v1.0.0
+              │                                     │
+develop       ●──●──●──●──●──●──●──●──●──●──●──●──●
+                 │        │             │
+feature/      setup-   crud-        logging-
+              graphql  tareas        aop
+```
+
+### Ramas utilizadas
+
+| Rama | Propósito |
+|---|---|
+| `main` | Código de producción — solo recibe merges de `release` |
+| `develop` | Rama de integración — base de todos los features |
+| `feature/setup-graphql` | Configuración inicial del módulo GraphQL |
+| `feature/crud-tareas` | Implementación del CRUD de tareas |
+| `feature/logging-aop` | Implementación del interceptor de AOP |
+| `release/v1.0` | Preparación de la versión final |
+
+---
+
+## Pruebas
 
 ```bash
-# unit tests
-$ npm run test
+# Pruebas unitarias
+npm run test
 
-# e2e tests
-$ npm run test:e2e
+# Pruebas con cobertura
+npm run test:cov
 
-# test coverage
-$ npm run test:cov
+# Pruebas end-to-end
+npm run test:e2e
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Scripts Disponibles
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run build        # Compila el proyecto TypeScript
+npm run start        # Inicia el servidor en modo normal
+npm run start:dev    # Inicia con recarga automática (desarrollo)
+npm run start:debug  # Inicia en modo debug
+npm run start:prod   # Inicia desde el build compilado
+npm run lint         # Analiza el código con ESLint
+npm run format       # Formatea el código con Prettier
+npm run test         # Ejecuta las pruebas unitarias
+npm run test:cov     # Ejecuta pruebas con reporte de cobertura
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 📚 Recursos
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- [Documentación oficial de NestJS](https://docs.nestjs.com)
+- [GraphQL Code First con NestJS](https://docs.nestjs.com/graphql/quick-start)
+- [Interceptores en NestJS (AOP)](https://docs.nestjs.com/interceptors)
+- [GitFlow — documentación](https://nvie.com/posts/a-successful-git-branching-model/)
+- [Apollo Server v5](https://www.apollographql.com/docs/apollo-server/)
